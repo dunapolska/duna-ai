@@ -45,6 +45,9 @@ next-env.d.ts
 /.clerk/
 
 
-.todo.md
-.progress.md
-.architecture.md
+/.todo.md
+/.progress.md
+/.architecture.md
+/todo.md
+/progress.md
+/architecture.md
