@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -55,6 +55,13 @@ export default function SignUpPage() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
   const router = useRouter();
+
+  // Dezaktywacja strony rejestracji: przekierowanie
+  useEffect(() => {
+    router.replace("/sign-in");
+  }, [router]);
+
+  return null;
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
