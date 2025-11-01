@@ -6,6 +6,13 @@ import ChatSidebar from "@/components/chat/chat-sidebar";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+
+function SignedOutRedirect() {
+  const router = useRouter();
+  useEffect(() => { router.replace('/sign-in'); }, [router]);
+  return null;
+}
 
 export default function ChatPage() {
   const router = useRouter();
@@ -22,6 +29,8 @@ export default function ChatPage() {
   }, [getOrCreate, router]);
 
   return (
+    <>
+    <SignedIn>
     <SidebarProvider className="h-[calc(100vh-4rem)] min-h-0" style={{ height: "calc(100vh - 4rem)", minHeight: 0 }}>
       <div className="flex h-full max-h-full w-full">
         <Sidebar className="top-16">
@@ -40,5 +49,10 @@ export default function ChatPage() {
         </SidebarInset>
       </div>
     </SidebarProvider>
+    </SignedIn>
+    <SignedOut>
+      <SignedOutRedirect />
+    </SignedOut>
+    </>
   );
 }

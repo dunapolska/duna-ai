@@ -1,6 +1,8 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -11,8 +13,16 @@ import {
 
 export default function DashboardPage() {
   const { user } = useUser();
+  const router = useRouter();
+
+  function SignedOutRedirect() {
+    useEffect(() => { router.replace('/sign-in'); }, [router]);
+    return null;
+  }
 
   return (
+    <>
+    <SignedIn>
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
@@ -37,5 +47,10 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
+    </SignedIn>
+    <SignedOut>
+      <SignedOutRedirect />
+    </SignedOut>
+    </>
   );
 }

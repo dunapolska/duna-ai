@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,13 @@ import DocumentFormDialog, { type FileType } from "@/components/knowledge/Docume
 import { statusLabel, statusVariant } from "@/lib/status";
 import { Badge } from "@/components/ui/badge";
 import { useCallback } from "react";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+
+function SignedOutRedirect() {
+  const router = useRouter();
+  useEffect(() => { router.replace('/sign-in'); }, [router]);
+  return null;
+}
 
 const categories = ["Akt prawny", "Rozporządzenie", "Ustawa", "Zarządzenie", "Inne"];
 
@@ -231,6 +239,8 @@ export default function KnowledgePage() {
   };
 
   return (
+    <>
+    <SignedIn>
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-foreground">Zarządzanie plikami</h1>
@@ -363,6 +373,11 @@ export default function KnowledgePage() {
         }}
       />
     </div>
+    </SignedIn>
+    <SignedOut>
+      <SignedOutRedirect />
+    </SignedOut>
+    </>
   );
 }
 

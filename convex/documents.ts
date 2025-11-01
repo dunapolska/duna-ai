@@ -2,11 +2,13 @@ import { mutation, action, internalQuery, internalMutation } from "./_generated/
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { rag } from "./ragClient";
+import { requireUser } from "./auth";
 
 export const deleteDocument = mutation({
   args: { documentId: v.id("documents") },
   returns: v.null(),
   handler: async (ctx, { documentId }) => {
+    await requireUser(ctx);
     // Orkiestracja kasowania przeniesiona do akcji (mutacje nie mogą wołać akcji bezpośrednio)
     await ctx.scheduler.runAfter(0, api.documents.removeDocument, { documentId });
     return null;
@@ -36,6 +38,7 @@ export const listGlobal = query({
     })
   ),
   handler: async (ctx) => {
+    await requireUser(ctx);
     // Note: using filter since schema doesn't provide index by type
     const rows = await ctx.db
       .query("documents")
@@ -77,6 +80,7 @@ export const listProjectDocs = query({
     })
   ),
   handler: async (ctx, args) => {
+    await requireUser(ctx);
     const rows = await ctx.db
       .query("documents")
       .withIndex("by_project_and_filename", (q) => q.eq("project_id", args.projectId))
@@ -120,6 +124,7 @@ export const listAllProjectDocs = query({
     })
   ),
   handler: async (ctx) => {
+    await requireUser(ctx);
     const rows = await ctx.db.query("documents").order("desc").collect();
     return rows
       .filter((d: any) => d.type === "project")
@@ -169,6 +174,7 @@ export const removeDocument = action({
   args: { documentId: v.id("documents") },
   returns: v.null(),
   handler: async (ctx, { documentId }) => {
+    await requireUser(ctx);
     const doc = await ctx.runQuery(internal.documents._getDocForDelete, { documentId });
     if (!doc) throw new Error("Document not found");
 

@@ -128,14 +128,14 @@ export default function SignInPage() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        {/* <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Nie masz konta?{" "}
             <Link href="/sign-up" className="text-blue-600 hover:underline">
               Zarejestruj się
             </Link>
           </p>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </div>
   );

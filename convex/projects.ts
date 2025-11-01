@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { rag } from "./ragClient";
+import { requireUser } from "./auth";
 
 export const list = query({
   args: {},
@@ -12,6 +13,7 @@ export const list = query({
     })
   ),
   handler: async (ctx) => {
+    await requireUser(ctx);
     const rows = await ctx.db.query("projects").collect();
     return rows.map((r) => ({ _id: r._id, name: r.name }));
   },
@@ -25,6 +27,7 @@ export const create = mutation({
   },
   returns: v.object({ projectId: v.id("projects") }),
   handler: async (ctx, args) => {
+    await requireUser(ctx);
     let projectId: any;
     try {
       projectId = await ctx.db.insert("projects", {

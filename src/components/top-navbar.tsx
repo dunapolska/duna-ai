@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MessageSquare, Database, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function TopNavbar() {
   const pathname = usePathname();
@@ -27,33 +27,40 @@ export default function TopNavbar() {
 
         {/* Navigation */}
         <nav className="flex items-center gap-2 flex-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={isActive ? "default" : "ghost"}
-                  size="default"
-                  className="gap-2 font-medium"
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Button>
-              </Link>
-            );
-          })}
+          <SignedIn>
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <Link key={item.href} href={item.href}>
+                  <Button
+                    variant={isActive ? "default" : "ghost"}
+                    size="default"
+                    className="gap-2 font-medium"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Button>
+                </Link>
+              );
+            })}
+          </SignedIn>
         </nav>
 
-        {/* User Menu */}
-        <UserButton 
-          afterSignOutUrl="/sign-in"
-          appearance={{
-            elements: {
-              avatarBox: "h-8 w-8"
-            }
-          }}
-        />
+        {/* User Menu / Sign in */}
+        <SignedIn>
+          <UserButton 
+            afterSignOutUrl="/sign-in"
+            appearance={{
+              elements: {
+                avatarBox: "h-8 w-8"
+              }
+            }}
+          />
+        </SignedIn>
+        <SignedOut>
+          
+        </SignedOut>
       </div>
       <div className="absolute inset-x-0 bottom-0 h-px bg-border" />
     </header>

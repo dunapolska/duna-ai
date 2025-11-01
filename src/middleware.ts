@@ -1,6 +1,11 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
 
-export default clerkMiddleware()
+export default clerkMiddleware({
+  publicRoutes: [
+    '/sign-in(.*)'
+  ],
+  signInUrl: '/sign-in',
+})
 
 export const config = {
   matcher: [
@@ -10,3 +15,5 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 }
+
+

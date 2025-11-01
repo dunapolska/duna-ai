@@ -2,6 +2,7 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { components, internal } from "./_generated/api";
 import { Workpool } from "@convex-dev/workpool";
+import { requireUser } from "./auth";
 
 const uploadPool = new Workpool(components.workpool, {
   maxParallelism: 4,
@@ -15,6 +16,7 @@ export const generateUploadUrl = mutation({
   args: {},
   returns: v.object({ url: v.string() }),
   handler: async (ctx) => {
+    await requireUser(ctx);
     const url = await ctx.storage.generateUploadUrl();
     return { url };
   },
@@ -30,6 +32,7 @@ export const registerUpload = mutation({
   },
   returns: v.object({ uploadId: v.id("uploads") }),
   handler: async (ctx, args) => {
+    await requireUser(ctx);
     const uploadId = await ctx.db.insert("uploads", {
       storageId: args.storageId,
       filename: args.filename,
@@ -81,6 +84,7 @@ export const listStatuses = query({
     })
   ),
   handler: async (ctx, args) => {
+    await requireUser(ctx);
     let q = ctx.db.query("uploads").order("desc");
     if (args.projectId) {
       q = q.filter((q) => q.eq(q.field("projectId"), args.projectId));
