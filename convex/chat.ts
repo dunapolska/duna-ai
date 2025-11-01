@@ -5,6 +5,7 @@ import { components, internal } from "./_generated/api";
 import { createThread, listUIMessages, vStreamArgs, syncStreams, abortStream, saveMessage } from "@convex-dev/agent";
 import { authorizeThreadAccess } from "./auth";
 import { appAgent } from "./agent";
+import { requireUser } from "./auth";
 
 type ThreadsPage = {
   continueCursor: string;
@@ -49,6 +50,7 @@ export const listUserThreads = query({
       userId?: string;
     }>
   > => {
+    await requireUser(ctx);
     const identity = await ctx.auth.getUserIdentity();
     const userId = identity?.subject;
     const paginated: ThreadsPage = await ctx.runQuery(
@@ -69,6 +71,7 @@ export const createThreadForUser = mutation({
     summary: v.optional(v.string()),
   },
   handler: async (ctx, { title, summary }) => {
+    await requireUser(ctx);
     const identity = await ctx.auth.getUserIdentity();
     const threadId = await createThread(ctx, components.agent, {
       userId: identity?.subject,
@@ -87,6 +90,7 @@ export const createFreshThreadForUser = mutation({
   },
   returns: v.string(),
   handler: async (ctx, { title, summary }) => {
+    await requireUser(ctx);
     const identity = await ctx.auth.getUserIdentity();
     const threadId = await createThread(ctx, components.agent, {
       userId: identity?.subject,
@@ -259,6 +263,7 @@ export const getLatestEmptyOrCreateThread = mutation({
   },
   returns: v.string(),
   handler: async (ctx, { title, summary }) => {
+    await requireUser(ctx);
     const identity = await ctx.auth.getUserIdentity();
     const userId = identity?.subject;
     // Pobierz najnowszy wątek użytkownika

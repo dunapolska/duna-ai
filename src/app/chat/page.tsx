@@ -6,31 +6,46 @@ import ChatSidebar from "@/components/chat/chat-sidebar";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
-
-function SignedOutRedirect() {
-  const router = useRouter();
-  useEffect(() => { router.replace('/sign-in'); }, [router]);
-  return null;
-}
+import { useAuth } from "@clerk/nextjs";
 
 export default function ChatPage() {
   const router = useRouter();
   const getOrCreate = useMutation(api.chat.getLatestEmptyOrCreateThread);
   const hasCreatedRef = useRef(false);
+  const { isLoaded, isSignedIn } = useAuth();
 
   useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
     if (hasCreatedRef.current) return;
     hasCreatedRef.current = true;
     (async () => {
       const id = await getOrCreate({});
       router.replace(`/chat/${id}`);
     })();
-  }, [getOrCreate, router]);
+  }, [getOrCreate, router, isLoaded, isSignedIn]);
+
+  // Klientowe przekierowanie dla niezalogowanych po załadowaniu Clerka
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      router.replace('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center text-muted-foreground">
+        Ładowanie…
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    // Redirect w efekcie; nic nie renderujemy, żeby uniknąć migotania
+    return null;
+  }
 
   return (
-    <>
-    <SignedIn>
     <SidebarProvider className="h-[calc(100vh-4rem)] min-h-0" style={{ height: "calc(100vh - 4rem)", minHeight: 0 }}>
       <div className="flex h-full max-h-full w-full">
         <Sidebar className="top-16">
@@ -49,10 +64,5 @@ export default function ChatPage() {
         </SidebarInset>
       </div>
     </SidebarProvider>
-    </SignedIn>
-    <SignedOut>
-      <SignedOutRedirect />
-    </SignedOut>
-    </>
   );
 }
